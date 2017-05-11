@@ -8,6 +8,7 @@ spring:
 eureka:
   server:
     enableSelfPreservation: false
+    eviction-interval-timer-in-ms: 5000
   instance:
     leaseRenewalIntervalInSeconds: 3
   client:
