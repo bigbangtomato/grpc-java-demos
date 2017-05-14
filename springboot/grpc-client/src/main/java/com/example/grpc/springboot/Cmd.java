@@ -37,45 +37,57 @@ public class Cmd {
 	private GrpcChannelFactory channelFactory;
 	private DiscoveryClient discoveryClient;
 
-  @Autowired
-  public Cmd(@Qualifier("discoveryClientChannelFactory") GrpcChannelFactory channelFactory,
-						 DiscoveryClient discoveryClient ) {
-  	this.channelFactory = channelFactory;
-  	this.discoveryClient = discoveryClient;
-  }
+	private final EchoServiceGrpc.EchoServiceBlockingStub stub;
+
+	@Autowired
+	public Cmd(@Qualifier("discoveryClientChannelFactory") GrpcChannelFactory channelFactory,
+			   DiscoveryClient discoveryClient ) throws InterruptedException {
+		this.channelFactory = channelFactory;
+		this.discoveryClient = discoveryClient;
+
+
+		Channel channel = channelFactory.createChannel("EchoService");
+		stub = EchoServiceGrpc.newBlockingStub(channel);
+
+//		while (true) {
+//			System.out.println("hello");
+//
+//			i++;
+//			EchoOuterClass.Echo response = stub.echo(EchoOuterClass.Echo.newBuilder().setMessage("Hello " + i).build());
+//
+//
+//			System.out.println(response);
+//			Thread.sleep(5*1000);
+//		}
+	}
 
 	@Scheduled(fixedDelay = 5000)
 	public void requestRegular() {
 		System.out.println("hello");
-		Channel channel = channelFactory.createChannel("EchoService");
-//		discoveryClient.getServices();
-
-    i++;
-		EchoServiceGrpc.EchoServiceBlockingStub stub = EchoServiceGrpc.newBlockingStub(channel);
-
-
-	  /**
-	   * 2017-05-11 13:28:43 [pool-8-thread-1] ERROR [TaskUtils.java:95] - Unexpected error occurred in scheduled task.
-	   io.grpc.StatusRuntimeException: INTERNAL: Connection closed with unknown cause
-	   at io.grpc.stub.ClientCalls.toStatusRuntimeException(ClientCalls.java:230)
-	   at io.grpc.stub.ClientCalls.getUnchecked(ClientCalls.java:211)
-	   at io.grpc.stub.ClientCalls.blockingUnaryCall(ClientCalls.java:144)
-	   at com.example.echo.EchoServiceGrpc$EchoServiceBlockingStub.echo(EchoServiceGrpc.java:135)
-	   at com.example.grpc.springboot.Cmd.requestRegular(Cmd.java:55)
-	   at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	   at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
-	   at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	   at java.lang.reflect.Method.invoke(Method.java:497)
-	   at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:65)
-	   at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
-	   at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
-	   at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308)
-	   at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180)
-	   at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294)
-	   at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
-	   at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
-	   at java.lang.Thread.run(Thread.java:745)
-	   */
+    	i++;
+		/**
+		 *
+			2017-05-11 13:28:43 [pool-8-thread-1] ERROR [TaskUtils.java:95] - Unexpected error occurred in scheduled task.
+			io.grpc.StatusRuntimeException: INTERNAL: Connection closed with unknown cause
+			at io.grpc.stub.ClientCalls.toStatusRuntimeException(ClientCalls.java:230)
+			at io.grpc.stub.ClientCalls.getUnchecked(ClientCalls.java:211)
+			at io.grpc.stub.ClientCalls.blockingUnaryCall(ClientCalls.java:144)
+			at com.example.echo.EchoServiceGrpc$EchoServiceBlockingStub.echo(EchoServiceGrpc.java:135)
+			at com.example.grpc.springboot.Cmd.requestRegular(Cmd.java:55)
+			at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+			at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+			at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+			at java.lang.reflect.Method.invoke(Method.java:497)
+			at org.springframework.scheduling.support.ScheduledMethodRunnable.run(ScheduledMethodRunnable.java:65)
+			at org.springframework.scheduling.support.DelegatingErrorHandlingRunnable.run(DelegatingErrorHandlingRunnable.java:54)
+			at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+			at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308)
+			at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180)
+			at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294)
+			at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+			at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+			at java.lang.Thread.run(Thread.java:745)
+		*/
 		EchoOuterClass.Echo response = stub.echo(EchoOuterClass.Echo.newBuilder().setMessage("Hello " + i).build());
 
 
